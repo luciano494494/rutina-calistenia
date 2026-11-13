@@ -1,0 +1,894 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Rutina de Calistenia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: copia de la hoja de Sheets — fondo celeste con flores, bloque "DIA n" con barra de avance, tabla con banda de semana, encabezados naranja/negro, celdas crema y RPE naranja→verde. Un solo look claro a propósito. */
+:root{
+  --sky:#b3e5fc; --cream:#fff6e5; --orange:#f08a4b; --char:#262626; --band:#cccccc;
+  --green:#93c47d; --ink:#000000; --white:#ffffff; --muted:#4a4a4a;
+  --font:"Montserrat",Arial,Helvetica,sans-serif;
+  --num:"Bebas Neue","Arial Narrow",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--sky)}
+body{color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.35}
+.wrap{max-width:1000px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sky)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sky);padding-block:8px 10px;display:grid;justify-items:center}
+.daybox{width:min(100%,560px);border:3px solid var(--char);box-shadow:0 4px 0 rgba(38,38,38,.25)}
+.dayhead{background:var(--orange);color:var(--white);display:grid;grid-template-columns:52px 1fr 52px;align-items:stretch;border-bottom:3px solid var(--char)}
+.dayhead h1{margin:0;display:grid;text-align:center;line-height:1}
+.dayhead #title{font-weight:800;font-size:40px;letter-spacing:.02em;padding:8px 4px 6px}
+.weekline{display:block;background:var(--char);color:var(--white);font-weight:800;font-size:24px;letter-spacing:.06em;padding:6px 4px;border-top:3px solid var(--char)}
+.weekline.alt{background:var(--white);color:var(--char)}
+.navbtn{min-height:52px;border:0;background:var(--char);color:var(--white);font:800 30px var(--font);cursor:pointer}
+.navbtn:disabled{opacity:.3;cursor:default}
+.dayprog{background:var(--char);display:grid;grid-template-columns:1fr auto;align-items:center}
+.bar{height:34px;background:var(--char);padding:6px 0 6px 6px}
+.bar i{display:block;height:100%;width:0;transition:width .25s}
+.pct{color:var(--white);font-family:var(--num);font-size:30px;line-height:1;padding:4px 10px 0;font-variant-numeric:tabular-nums;border-left:3px solid var(--char)}
+.under{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:8px;font-size:12.5px;font-weight:600;color:var(--char)}
+.todaybtn{border:2px solid var(--char);background:var(--cream);color:var(--char);padding:3px 10px;font:700 12px var(--font);cursor:pointer}
+
+#list{display:grid;gap:14px}
+.dayweek{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);border:3px solid var(--char);background:var(--char);color:var(--white);align-items:stretch}
+.dw-day{font-size:30px;font-weight:800;line-height:1;padding:10px;text-align:center}
+.dw-week{display:grid;place-items:center;background:var(--orange);font-weight:700;font-size:15px;border-left:2px solid var(--char)}
+.dayweek.dark .dw-week{background:var(--char);border-left-color:#555}
+.block{min-width:0}
+.tablebox{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.rutina{border-collapse:collapse;width:100%;min-width:740px;table-layout:fixed;border:3px solid var(--char);background:var(--cream)}
+.rutina th,.rutina td{border:1px solid var(--char);padding:6px;text-align:center;vertical-align:middle}
+.rutina .r-day th{background:var(--char);color:var(--white);border-bottom:3px solid var(--char)}
+.rutina .r-day .c-day{font-size:30px;font-weight:800;line-height:1.05;padding:8px 6px}
+.rutina .r-day .c-week{font-size:14px;font-weight:700;background:var(--orange);border-left:2px solid var(--char)}
+.rutina.dark .r-day .c-week{background:var(--char)}
+.rutina .r-cols th{background:var(--orange);color:var(--white);font-weight:400;font-size:13px;white-space:nowrap;padding:3px 6px}
+.rutina.dark .r-cols th{background:var(--char)}
+.rutina .r-cols .c-ej{background:var(--char);font-weight:700}
+.rutina tr.band th{background:var(--band);color:var(--ink);font-weight:700;font-size:13px;padding:3px 6px;text-align:left}
+.rutina tr.band span{position:sticky;left:calc(50vw - 70px);display:inline-block}
+.rutina .c-name{position:sticky;left:0;z-index:1;background:var(--cream);font-size:14px;font-weight:400;width:200px;min-width:150px;line-height:1.3}
+.rutina .c-name.bold{font-weight:700}
+.rutina .r-cols .c-ej,.rutina .r-day .c-day{position:sticky;left:0;z-index:2}
+.rutina .c-vid{width:34px;padding:2px}
+.rutina .c-num{white-space:normal;overflow-wrap:break-word;font-size:13px;line-height:1.25;font-variant-numeric:tabular-nums}
+.rutina .c-notes{font-size:12px;min-width:200px}
+.rutina .c-rpe{background:var(--orange);width:96px;padding:3px}
+.rutina .c-rpe.done{background:var(--green)}
+.rutina .c-rpe{position:relative}
+.rutina .c-rpe:focus-within{outline:3px solid var(--char);outline-offset:-3px}
+.rutina .rpe-txt{display:grid;place-items:center;min-height:34px;font:600 14px/1.15 var(--font);padding:2px}
+.rutina.compact .rpe-txt{font-size:12px}
+.rutina .c-rpe select{position:absolute;inset:0;height:100%;opacity:0}
+.rutina .rpe-clear{position:absolute;top:2px;right:2px;z-index:2;width:22px;height:22px;padding:0;border:1.5px solid var(--char);border-radius:50%;background:var(--white);color:var(--char);font:800 11px/1 var(--font);cursor:pointer;display:grid;place-items:center}
+.rutina .rpe-clear:focus-visible{outline:3px solid var(--char);outline-offset:1px}
+.rutina .c-rpe.done .rpe-txt{padding-right:14px}
+.rutina select{width:100%;height:34px;border:0;background:transparent;color:var(--ink);font:600 14px var(--font);text-align:center;text-align-last:center;cursor:pointer;appearance:none;-webkit-appearance:none}
+.rutina .video{display:inline-block;color:var(--ink);text-decoration:none;font-size:16px;line-height:1}
+.rutina select:focus-visible,.rutina .video:focus-visible,.navbtn:focus-visible,.todaybtn:focus-visible{outline:3px solid var(--char);outline-offset:1px}
+.rutina.compact{min-width:0;table-layout:fixed}
+.rutina.compact th,.rutina.compact td{padding:5px 3px;font-size:12px}
+.rutina.compact .c-name{position:static;width:38%;min-width:0;font-size:12.5px;overflow-wrap:anywhere}
+.rutina.compact .r-cols .c-ej,.rutina.compact .r-day .c-day{position:static}
+.rutina.compact .r-day .c-day{font-size:22px}
+.rutina.compact .r-cols th{font-size:11px;padding:3px 1px}
+.rutina.compact tr.band span{position:static}
+.rutina.compact tr.band th{text-align:center}
+.rutina.compact .c-num{white-space:normal;overflow-wrap:normal;word-break:normal}
+.rutina .c-num .nw{white-space:nowrap}
+.rutina.compact .c-rpe{width:19%}
+.rutina.compact select{font-size:13px}
+.rutina.compact .video{font-size:14px}
+.reps-in{width:100%;height:30px;border:1px solid var(--char);background:var(--white);color:var(--ink);font:600 13px var(--font);text-align:center;padding:0 4px}
+.reps-in::placeholder{color:#9a8f7c;font-weight:400}
+.reps-in.has{background:#e3f2da}
+.reps-in:focus-visible{outline:3px solid var(--orange);outline-offset:0}
+.rutina .c-reps{width:90px;padding:3px}
+.rutina.compact .c-name .reps-in{display:block;margin-top:5px;height:28px;font-size:12px}
+.nm-notes{display:block;margin-top:3px;font-size:10.5px;font-style:italic;font-weight:400;color:var(--muted)}
+
+.comment{margin-top:18px;border:3px solid var(--char);background:var(--cream)}
+.comment h2{margin:0;background:var(--char);color:var(--white);text-align:center;font-weight:700;font-size:14px;padding:6px 8px}
+.comment .inner{display:grid;gap:6px;padding:10px}
+.comment p{margin:0;font-size:12.5px;text-align:center}
+.comment textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--char);background:var(--white);color:var(--ink);font:14px/1.4 var(--font);padding:10px}
+.comment textarea:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+.comment small{color:var(--muted);font-size:12px}
+.foot{display:flex;justify-content:space-between;align-items:flex-end;padding-block:12px 20px}
+.foot img{height:64px;width:auto}
+.status{font-size:12px;font-weight:600;color:var(--char);text-align:center;margin:0}
+.setup{border:3px solid var(--char);background:var(--cream);margin-block:10px 18px}
+.setup h2{margin:0;background:var(--orange);color:var(--white);text-align:center;font-weight:800;font-size:20px;padding:10px;border-bottom:3px solid var(--char)}
+.setup .inner{display:grid;gap:12px;padding:14px;max-width:560px;margin:0 auto}
+.setup ol{margin:0;padding-left:22px;display:grid;gap:6px;font-size:14px}
+.setup .file{display:grid;place-items:center;gap:6px;border:2px dashed var(--char);background:var(--white);padding:18px;text-align:center;cursor:pointer;font-weight:700}
+.setup .file input{position:absolute;width:1px;height:1px;opacity:0}
+.setup .file:focus-within{outline:3px solid var(--orange);outline-offset:2px}
+.setup label.pick{font-weight:700;font-size:13px}
+.setup select{width:100%;height:42px;border:2px solid var(--char);background:var(--white);font:600 15px var(--font);padding:0 8px}
+.btn{height:44px;border:2px solid var(--char);background:var(--char);color:var(--white);font:800 14px var(--font);cursor:pointer;padding:0 16px}
+.btn.alt{background:var(--cream);color:var(--char)}
+.btn:focus-visible,.setup select:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.msg{font-size:13px;font-weight:600;margin:0}
+.msg.err{color:#b3261e}
+.actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.pend{border:3px solid var(--char);background:var(--cream);margin-bottom:14px}
+.pend summary{background:var(--char);color:var(--white);font-weight:800;font-size:14px;padding:8px 10px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:8px}
+.pend summary::-webkit-details-marker{display:none}
+.pend summary::after{content:"▾";font-weight:800}
+.pend:not([open]) summary::after{content:"▸"}
+.pend summary:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.pend .ok{margin:0;padding:10px;font-weight:700;text-align:center;background:var(--green)}
+.pend .sec{border-top:1px solid var(--char)}
+.pend .sec h3{margin:0;background:var(--band);font-size:12.5px;font-weight:800;letter-spacing:.04em;padding:4px 10px;text-transform:uppercase}
+.pend .item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 10px;border-top:1px solid #d9cbb3}
+.pend .item:first-of-type{border-top:0}
+.pend .item b{display:block;font-size:13.5px}
+.pend .item span{display:block;font-size:12.5px;color:var(--muted)}
+.pend .item.miss b::before{content:"";display:inline-block;width:10px;height:10px;margin-right:6px;background:var(--orange);border:1px solid var(--char);vertical-align:0}
+.pend .go{height:34px;border:2px solid var(--char);background:var(--white);color:var(--char);font:800 12px var(--font);padding:0 10px;cursor:pointer}
+.pend .go:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+.fb .actions{margin-top:2px}
+.fblink{display:inline-grid;place-items:center;text-decoration:none}
+.fb .msg{text-align:center}
+.inbox{margin-top:14px}
+.inbox .item{grid-template-columns:minmax(0,1fr) auto}
+.inbox .fbtext{white-space:pre-wrap;font-size:13.5px;color:var(--ink)}
+.inbox .fbmeta{font-size:12px;color:var(--muted);margin-bottom:2px}
+main.wrap{padding-bottom:30px}
+.ed{cursor:text;border-radius:2px;outline:none}
+.ed:hover{background:rgba(240,138,75,.12)}
+.ed:focus{background:var(--white);box-shadow:0 0 0 2px var(--orange)}
+.ed:empty::before{content:attr(data-ph);color:#9a8f7c;font-style:italic;font-weight:400}
+.c-num.ed:empty:not(:focus)::before{content:""}
+.rutina td.ed{min-height:30px}
+.nm-notes.ed{min-height:14px}
+.addrow td{padding:0;background:var(--cream)}
+.addbtn{width:100%;height:34px;border:0;background:transparent;color:var(--char);font:700 12.5px var(--font);cursor:pointer}
+.addbtn:hover{background:rgba(240,138,75,.15)}
+.addbtn:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+.edhint{font-size:12px;font-weight:600;color:var(--char);text-align:center;margin:0 0 10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;gap:12px;align-items:center;background:var(--char);color:var(--white);border:2px solid var(--char);padding:10px 14px;font-weight:700;font-size:13.5px;max-width:calc(100% - 32px);box-shadow:0 4px 0 rgba(38,38,38,.35)}
+.toast button{border:2px solid var(--white);background:transparent;color:var(--white);font:800 12.5px var(--font);padding:4px 10px;cursor:pointer}
+.change{display:flex;justify-content:center;margin-top:16px}
+.markrow{display:flex;justify-content:center;margin-top:14px}
+.markrow .btn{height:52px;font-size:16px;padding:0 22px}
+.markrow.confirm{flex-direction:column;align-items:center;gap:10px;border:3px solid var(--char);background:var(--cream);padding:12px;text-align:center}
+.markrow.confirm .btn{height:44px;font-size:14px}
+.donebar{border:3px solid var(--char);background:var(--green);margin-top:14px;display:grid;gap:8px;padding:12px;text-align:center}
+.donebar b{font-size:18px;font-weight:800;letter-spacing:.04em}
+.donebar span{font-size:12.5px;font-weight:600}
+/* Celular apaisado: encabezado compacto en una línea, y se esconde al bajar */
+.top{transition:transform .2s ease}
+@media (orientation:landscape) and (max-height:500px){
+  .top{padding-block:4px 4px}
+  .daybox{width:min(100%,640px);border-width:2px;box-shadow:none}
+  .dayhead{grid-template-columns:40px 1fr 40px;border-bottom-width:2px}
+  .dayhead h1{display:flex;align-items:stretch}
+  .dayhead #title{flex:1;display:grid;place-items:center;font-size:22px;padding:4px}
+  .weekline{display:grid;place-items:center;flex:1;font-size:15px;padding:4px;border-top:0;border-left:2px solid var(--char)}
+  .navbtn{min-height:36px;font-size:22px}
+  .bar{height:18px;padding:4px 0 4px 4px}
+  .pct{font-size:18px;padding:2px 8px 0}
+  .under{margin-top:4px;font-size:11px;gap:8px}
+  .todaybtn{padding:1px 8px;font-size:11px}
+}
+/* En el celular (parado o apaisado) el encabezado se esconde al bajar */
+@media (max-width:700px),(orientation:landscape) and (max-height:500px){
+  .top.hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
+}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}.top{transition:none}}
+</style>
+
+<section class="wrap" id="setupWrap" hidden>
+  <div class="setup">
+    <h2 id="setupTitle">Cargá tu rutina</h2>
+    <div class="inner">
+      <ol>
+        <li>Abrí tu planilla de entrenamiento en Google Sheets.</li>
+        <li>Tocá <b>Archivo → Descargar → Microsoft Excel (.xlsx)</b>. En el celular: los tres puntos ⋮ → <b>Compartir y exportar → Guardar como Excel</b>.</li>
+        <li>Subí ese archivo acá.</li>
+      </ol>
+      <label class="file" id="fileLabel">
+        <span>Elegir archivo .xlsx</span>
+        <small id="fileName">Ningún archivo elegido</small>
+        <input type="file" id="file" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      </label>
+      <div id="pickBox" hidden>
+        <label class="pick" for="sheetPick">¿Qué mes querés usar?</label>
+        <select id="sheetPick"></select>
+      </div>
+      <p class="msg" id="setupMsg" aria-live="polite"></p>
+      <div class="actions">
+        <button class="btn" id="useSheet" hidden>Usar esta rutina</button>
+        <button class="btn alt" id="cancelSetup" hidden>Volver a mi rutina</button>
+      </div>
+    </div>
+  </div>
+</section>
+<div id="routineView" hidden>
+<div class="wrap top">
+  <div class="daybox">
+    <div class="dayhead">
+      <button class="navbtn" id="prev" aria-label="Sesión anterior">‹</button>
+      <h1><span id="title"></span><span class="weekline" id="weekline"></span></h1>
+      <button class="navbtn" id="next" aria-label="Sesión siguiente">›</button>
+    </div>
+    <div class="dayprog"><div class="bar"><i id="fill"></i></div><div class="pct" id="pct"></div></div>
+  </div>
+  <div class="under"><span id="sheet"></span><span id="save" aria-live="polite"></span><button class="todaybtn" id="today" hidden>Ir a la de hoy</button></div>
+</div>
+<main class="wrap">
+  <details class="pend" id="pend" open></details>
+  <p class="edhint">Tocá cualquier dato de la tabla para cambiarlo.</p>
+  <div id="list"></div>
+  <div id="doneBox"></div>
+  <section class="comment">
+    <h2>Comentario sobre la rutina</h2>
+    <div class="inner">
+      <p>Contá cómo te fue este día: qué te gustó, qué costó, qué cambiarías.</p>
+      <textarea id="comment"></textarea>
+      <small>Se guarda solo mientras escribís.</small>
+    </div>
+  </section>
+  <section class="comment fb" id="fbBox">
+    <h2>Sugerencias sobre la app</h2>
+    <div class="inner">
+      <p>¿Algo no te gusta, no funciona o le falta? Contalo en GitHub (hace falta una cuenta de GitHub, es gratis).</p>
+      <div class="actions"><a class="btn fblink" href="https://github.com/luciano494494/rutina-calistenia/issues/new" target="_blank" rel="noopener">Enviar sugerencia ↗</a></div>
+    </div>
+  </section>
+  <div class="change"><button class="btn alt" id="changeBtn">Cargar otra rutina</button></div>
+</main>
+</div>
+<p class="status wrap" id="note"></p>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+// Lee un Excel exportado de la planilla de entrenamiento y devuelve las rutinas por hoja.
+// Formato esperado: una celda "EJERCICIOS" por día; a su derecha, por semana, columnas
+// Reps / Series / Carga / tempo / RPE / Aclaraciones; filas "SUPER SERIE X" agrupan ejercicios.
+function rutinaNorm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim(); }
+
+function parseRoutineWorkbook(XLSX, wb) {
+  const out = [];
+  for (const name of wb.SheetNames) {
+    try { const r = parseRoutineSheet(XLSX, wb.Sheets[name], name); if (r) out.push(r); } catch (e) { /* hoja con otro formato */ }
+  }
+  return out;
+}
+
+function parseRoutineSheet(XLSX, ws, sheetName) {
+  if (!ws || !ws["!ref"]) return null;
+  const R = XLSX.utils.decode_range(ws["!ref"]);
+  const cell = (r, c) => ws[XLSX.utils.encode_cell({r, c})];
+  const text = (r, c) => {
+    const x = cell(r, c);
+    if (!x || x.v == null) return "";
+    return String(x.t === "s" ? x.v : (x.w != null ? x.w : x.v)).trim();
+  };
+  const safeUrl = u => (typeof u === "string" && /^https?:\/\//i.test(u.trim())) ? u.trim() : "";
+
+  // links de video: celda con hipervínculo -> nombre del ejercicio en la celda de su izquierda
+  const links = {};
+  for (let r = R.s.r; r <= R.e.r; r++) for (let c = R.s.c + 1; c <= R.e.c; c++) {
+    const x = cell(r, c);
+    const url = x && x.l && safeUrl(x.l.Target);
+    if (url) { const k = rutinaNorm(text(r, c - 1)); if (k && !(k in links)) links[k] = url; }
+  }
+
+  const fmt = (x, kind) => {
+    if (!x || x.v == null || x.v === "") return "";
+    if (x.t === "n") {
+      const z = typeof x.z === "string" ? x.z.replace(/"[^"]*"/g, "") : "";
+      if (z && !/general/i.test(z) && /[dmy]/i.test(z) && !/0/.test(z)) {
+        const p = XLSX.SSF.parse_date_code(x.v);
+        if (p) return kind === "rpe" ? `${p.d},${p.m}` : `${p.d}-${p.m}`;
+      }
+      const v = Number.isInteger(x.v) ? String(x.v) : String(Math.round(x.v * 100) / 100);
+      return kind === "rpe" ? v.replace(".", ",") : v;
+    }
+    if (x.t === "b" || x.t === "e") return "";
+    return String(x.v).trim();
+  };
+
+  const headers = [];
+  for (let r = R.s.r; r <= R.e.r; r++) for (let c = R.s.c; c <= R.e.c; c++) {
+    if (rutinaNorm(text(r, c)) === "ejercicios") headers.push({r, c});
+  }
+  if (!headers.length) return null;
+  const headerRows = new Set(headers.map(h => h.r));
+
+  const days = [];
+  headers.forEach((h, k) => {
+    // columnas de cada semana
+    const weeks = []; let cur = null;
+    for (let c = h.c + 1; c <= R.e.c; c++) {
+      const t = rutinaNorm(text(h.r, c));
+      if (!t) continue;
+      if (t.startsWith("rep")) { cur = {reps: c}; weeks.push(cur); continue; }
+      if (!cur) continue;
+      if (t.startsWith("ser")) cur.series = c;
+      else if (t.startsWith("carg")) cur.carga = c;
+      else if (t.startsWith("temp")) cur.tempo = c;
+      else if (t.startsWith("rpe")) cur.rpe = c;
+      else if (/^(acl|alc|obs|nota)/.test(t)) cur.notas = c;
+    }
+    if (!weeks.length) return;
+    const videoCol = h.c + 1 < weeks[0].reps ? h.c + 1 : -1;
+
+    let name = "";
+    for (let r = h.r - 1; r >= Math.max(R.s.r, h.r - 4) && !name; r--) {
+      for (let c = h.c; c <= Math.min(R.e.c, h.c + 1) && !name; c++) {
+        const m = text(r, c).match(/^d[ií]a\s*(\d+)/i);
+        if (m) name = "Día " + m[1];
+      }
+    }
+    if (!name) name = "Día " + (k + 1);
+
+    const exercises = []; let group = null, blanks = 0;
+    for (let r = h.r + 1; r <= R.e.r && r <= h.r + 80; r++) {
+      if (headerRows.has(r)) break;
+      const n = text(r, h.c);
+      if (!n) { blanks++; if (exercises.length && blanks >= 2) break; continue; }
+      blanks = 0;
+      const nn = rutinaNorm(n);
+      if (/^super\s*serie/.test(nn)) { group = n.replace(/\s+/g, " "); continue; }
+      if (nn.startsWith("comentario") || /^d[ií]a\s*\d+$/i.test(n)) break;
+      const vcell = videoCol >= 0 ? cell(r, videoCol) : null;
+      const video = (vcell && vcell.l && safeUrl(vcell.l.Target)) || links[nn] || "";
+      const wk = weeks.map(W => {
+        const g = (key, kind) => W[key] != null ? fmt(cell(r, W[key]), kind) : "";
+        const o = {reps: g("reps"), series: g("series"), carga: g("carga"), tempo: g("tempo"), rpe: g("rpe", "rpe"), notas: g("notas")};
+        ["carga", "tempo", "notas"].forEach(f => { if (o[f] === "0") o[f] = ""; });
+        return o;
+      });
+      exercises.push({group, name: n, video, weeks: wk});
+    }
+    if (exercises.length) days.push({name, exercises});
+  });
+  if (!days.length) return null;
+  return {sheet: String(sheetName).replace(/\s+/g, " ").trim(), days};
+}
+
+
+
+let DATA = null;            // rutina activa: {sheet, days:[{name, exercises:[{group,name,video,weeks:[...]}]}]}
+let ORDER = [];
+const VALUES = ["6","6,5","7","7,5","8","8,5","9","9,5","10"];
+const NOREPS = "No llegué con las repes";
+const NOTIEMPO = "No llegué con el tiempo";
+// Unifica las variantes de la planilla ("No llegue a las reps", "No llegue con el tiempo") con las de la app
+function canonRpe(v) {
+  if (!v) return "";
+  const n = rutinaNorm(v);
+  if (n.startsWith("no llegue")) { if (n.includes("tiempo")) return NOTIEMPO; if (n.includes("rep")) return NOREPS; }
+  return v;
+}
+const rpeLabel = v => v === NOREPS ? "No llegué (repes)" : v === NOTIEMPO ? "No llegué (tiempo)" : v;
+let saved = {};
+let pos = 0, db = null, uid = null, docRef = null, unsub = null, writing = false, pending = false, typingTimer = null;
+let parsed = [];
+
+const key = (w, d, i) => `s${w+1}-d${d+1}-e${i}`;
+const ckey = (w, d) => `s${w+1}-d${d+1}-comentario`;
+const hkey = (w, d) => `s${w+1}-d${d+1}-hecho`;
+const rkey = (w, d, i) => `s${w+1}-d${d+1}-e${i}-reps`;
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const x = document.createElement(tag); if (cls) x.className = cls; if (txt != null) x.textContent = txt; return x; };
+const norm = rutinaNorm;
+const typing = () => { const a = document.activeElement; return !!a && (a.id === "comment" || a.classList.contains("reps-in") || a.isContentEditable); };
+const dayLabel = name => name.toUpperCase().replace("Í", "I");
+const storeKeyOf = sheet => "rpe-" + String(sheet).replace(/\s+/g, "-").toLowerCase();
+const weeksOf = d => DATA.days[d].exercises[0].weeks.length;
+
+function rpeOf(w, d, i) {
+  const k = key(w, d, i);
+  if (k in saved) return saved[k];
+  const wk = DATA.days[d].exercises[i].weeks[w];
+  return (wk && wk.rpe) || "";
+}
+const liveIdx = d => DATA.days[d].exercises.map((_, i) => i).filter(i => !DATA.days[d].exercises[i].removed);
+const nLive = d => liveIdx(d).length;
+function filled(w, d) {
+  return liveIdx(d).reduce((n, i) => n + (rpeOf(w, d, i) ? 1 : 0), 0);
+}
+// Sin marcas: el último día con algún RPE; si está completo, el siguiente
+function currentIndex() {
+  let last = -1;
+  ORDER.forEach(({w, d}, k) => { if (filled(w, d) > 0) last = k; });
+  if (last === -1) return 0;
+  const {w, d} = ORDER[last];
+  return filled(w, d) < nLive(d) ? last : Math.min(last + 1, ORDER.length - 1);
+}
+function isDone(w, d) { return !!saved[hkey(w, d)]; }
+// Sesión de hoy: la siguiente a la última marcada como completa. Sin marcas, la primera con RPE sin cargar.
+function nextIndex() {
+  let last = -1;
+  ORDER.forEach(({w, d}, k) => { if (isDone(w, d)) last = k; });
+  return last === -1 ? currentIndex() : Math.min(last + 1, ORDER.length - 1);
+}
+
+const _tw = document.createElement("canvas").getContext("2d");
+function textW(s, font) { _tw.font = font; return _tw.measureText(String(s)).width; }
+
+function render() {
+  const {w, d} = ORDER[pos], day = DATA.days[d];
+  $("sheet").textContent = "Rutina " + DATA.sheet;
+  $("title").textContent = dayLabel(day.name);
+  $("weekline").textContent = "SEMANA " + (w + 1) + (isDone(w, d) ? " ✓" : "");
+  $("weekline").className = "weekline" + (w % 2 ? " alt" : "");
+  $("prev").disabled = pos === 0;
+  $("next").disabled = pos === ORDER.length - 1;
+  $("today").hidden = pos === nextIndex();
+
+  // Avance de esta sesión (este día en esta semana): ejercicios con RPE / total
+  const f = nLive(d) ? filled(w, d) / nLive(d) : 0;
+  $("pct").textContent = (f * 100).toFixed(2).replace(".", ",") + "%";
+  $("fill").style.width = (100 * f) + "%";
+  $("fill").style.background = f <= .25 ? "#eba834" : f <= .5 ? "#ebe834" : f <= .75 ? "#c3eb34" : f <= .99 ? "#78eb52" : "#44b857";
+
+  const list = $("list");
+  list.innerHTML = ""; list.dataset.session = `${w}-${d}`;
+  const compact = window.matchMedia("(max-width: 700px)").matches;
+  const hasCarga = day.exercises.some(ex => !ex.removed && ex.weeks[w].carga);
+  const hasTempo = day.exercises.some(ex => !ex.removed && ex.weeks[w].tempo);
+  const cols = [["Reps", "reps"], ["Series", "series"]];
+  if (hasCarga) cols.push(["Carga", "carga"]);
+  if (hasTempo) cols.push(["tempo", "tempo"]);
+  const nameSpan = compact ? 1 : 2;
+  const totalCols = nameSpan + cols.length + 1 + (compact ? 0 : 2);
+  const tableCls = "rutina" + (w % 2 ? " dark" : "") + (compact ? " compact" : "");
+
+  // Anchos: las columnas de datos se ensanchan solo si su contenido no entra en una línea
+  const colWidths = (() => {
+    const base = compact ? [40, ...cols.map(() => 42 / cols.length), 18]
+                         : [21, 4, ...cols.map(() => 33 / cols.length), 10, 12, 20];
+    const W = Math.max(280, list.clientWidth || 340);
+    const pad = compact ? 9 : 15;                       // padding + bordes de la celda
+    const fCell = compact ? "400 12px Montserrat, Arial" : "400 13px Montserrat, Arial";
+    const fHead = compact ? "400 11px Montserrat, Arial" : "400 13px Montserrat, Arial";
+    const first = compact ? 1 : 2;                      // índice de la primera columna de datos
+    // full: el valor entero en una línea; word: al menos la palabra más larga (ej. "x2-2-2") sin cortarse
+    const measure = byWord => cols.map(c => {
+      let m = textW(c[0], fHead);
+      day.exercises.forEach(ex => {
+        if (ex.removed) return;
+        const v = String(ex.weeks[w][c[1]] || "");
+        const parts = byWord ? v.split(/\s+/) : [v];
+        parts.forEach(p => { m = Math.max(m, textW(p, fCell)); });
+      });
+      return (m + pad + 5) / W * 100;                   // % del ancho
+    });
+    const takeFrom = compact ? [0, base.length - 1] : [base.length - 1, 0];
+    const mins = compact ? {0: 30, [base.length - 1]: 16} : {0: 16, [base.length - 1]: 12};
+    const fit = need => {
+      const out = base.slice();
+      let extra = 0;
+      need.forEach((n, j) => { if (n > out[first + j]) { extra += n - out[first + j]; out[first + j] = n; } });
+      // se lo saco a Aclaraciones / nombre / RPE, sin bajar de un mínimo
+      takeFrom.forEach(ix => { const can = Math.max(0, out[ix] - mins[ix]); const t = Math.min(can, extra); out[ix] -= t; extra -= t; });
+      return {out, extra};
+    };
+    let r = fit(measure(false));
+    if (r.extra > 0.01) r = fit(measure(true));
+    if (r.extra > 0.01) {                                // ni así entra: repartir lo que falta entre las de datos
+      const need = measure(true), tot = need.reduce((a, b) => a + b, 0);
+      need.forEach((n, j) => { r.out[first + j] -= r.extra * n / tot; });
+    }
+    return r.out;
+  })();
+
+  // un bloque por súper serie
+  // agrupado por nombre de bloque, en el orden en que aparece cada uno (un ejercicio agregado va a su bloque)
+  const groups = [];
+  day.exercises.forEach((ex, i) => {
+    if (ex.removed) return;
+    let g = groups.find(x => x.name === ex.group);
+    if (!g) { g = {name: ex.group, items: []}; groups.push(g); }
+    g.items.push(i);
+  });
+  groups.forEach(g => {
+    const blk = el("section", "block");
+    const tb = el("div", "tablebox");
+    const table = el("table", tableCls);
+    const widths = colWidths;
+    const cg = el("colgroup");
+    widths.forEach(p => { const c = el("col"); c.style.width = p + "%"; cg.append(c); });
+    table.append(cg);
+    const thead = el("thead");
+    const gr = el("tr", "band"); const gc = el("th"); gc.colSpan = totalCols; gc.scope = "colgroup";
+    gc.append(el("span", null, (g.name || "Ejercicios").replace("Súper", "Super").toUpperCase()));
+    gr.append(gc);
+    const r2 = el("tr", "r-cols");
+    const ej = el("th", "c-ej", "EJERCICIOS"); ej.colSpan = nameSpan; ej.scope = "col"; r2.append(ej);
+    [...cols.map(c => c[0]), "RPE", ...(compact ? [] : ["Hice", "Aclaraciones"])].forEach(c => { const th = el("th", null, c); th.scope = "col"; r2.append(th); });
+    thead.append(gr, r2); table.append(thead);
+    const tbody = el("tbody");
+    g.items.forEach(i => {
+      const ex = day.exercises[i];
+      const wk = ex.weeks[w], val = rpeOf(w, d, i);
+      const tr = el("tr");
+      const nm = el("th", "c-name" + (ex.video ? "" : " bold")); nm.scope = "row";
+      const nmSpan = el("span", null, ex.name);
+      nmSpan.dataset.nameIdx = i;
+      editable(nmSpan, ex.name, "Nombre del ejercicio", v => {
+        if (v) { ex.name = v; return; }
+        if (!ex.name) {                                   // ejercicio nuevo que quedó sin nombre: se descarta
+          if (i === DATA.days[d].exercises.length - 1) DATA.days[d].exercises.pop(); else ex.removed = true;
+          return;
+        }
+        ex.removed = true;
+        toast(`Quitaste "${ex.name}"`, "Deshacer", () => { delete ex.removed; saveRoutineSoon(); render(); });
+      }, true);
+      nm.append(nmSpan);
+      let vlink = null;
+      if (ex.video) { vlink = el("a", "video", "▶️"); vlink.href = ex.video; vlink.target = "_blank"; vlink.rel = "noopener"; vlink.setAttribute("aria-label", "Ver video de " + ex.name); }
+      const rin = repsInput(w, d, i, ex.name);
+      if (compact) {
+        if (vlink) nm.append(" ", vlink);
+        const nt = el("small", "nm-notes", wk.notas || "");
+        editable(nt, wk.notas || "", "+ aclaración", v => { wk.notas = v; });
+        nm.append(nt);
+        nm.append(rin);
+        tr.append(nm);
+      } else {
+        tr.append(nm);
+        const vc = el("td", "c-vid"); if (vlink) vc.append(vlink); tr.append(vc);
+      }
+      cols.forEach(c => {
+        const td = el("td", "c-num");
+        String(wk[c[1]] || "").split(/\s+/).filter(Boolean).forEach((p, j) => { if (j) td.append(" "); td.append(el("span", "nw", p)); });
+        editable(td, wk[c[1]] || "", c[0], v => { wk[c[1]] = v; });
+        tr.append(td);
+      });
+      const rc = el("td", "c-rpe" + (val ? " done" : ""));
+      const sel = el("select"); sel.id = `rpe-${w}-${d}-${i}`; sel.setAttribute("aria-label", "RPE de " + ex.name);
+      const cv = canonRpe(val);
+      const opts = ["", ...VALUES, NOREPS, NOTIEMPO];
+      if (cv && !opts.includes(cv)) opts.push(cv);
+      opts.forEach(v => { const o = el("option", null, rpeLabel(v)); o.value = v; sel.append(o); });
+      sel.value = cv;
+      sel.addEventListener("change", () => setRpe(w, d, i, sel.value));
+      rc.append(el("span", "rpe-txt", cv ? rpeLabel(cv) : "\u00a0"), sel);
+      if (cv) {
+        const clr = el("button", "rpe-clear", "✕");
+        clr.type = "button"; clr.setAttribute("aria-label", "Borrar RPE de " + ex.name);
+        clr.addEventListener("click", ev => { ev.stopPropagation(); setRpe(w, d, i, ""); });
+        rc.append(clr);
+      }
+      tr.append(rc);
+      if (!compact) {
+        const rc2 = el("td", "c-reps"); rc2.append(rin);
+        const nc = el("td", "c-notes", wk.notas || "");
+        editable(nc, wk.notas || "", "+ aclaración", v => { wk.notas = v; });
+        tr.append(rc2, nc);
+      }
+      tbody.append(tr);
+    });
+    const ar = el("tr", "addrow"), ac = el("td"); ac.colSpan = totalCols;
+    const ab = el("button", "addbtn", "+ Agregar ejercicio"); ab.type = "button";
+    ab.addEventListener("click", () => addExercise(d, g.name));
+    ac.append(ab); ar.append(ac); tbody.append(ar);
+    table.append(tbody); tb.append(table); blk.append(tb); list.append(blk);
+  });
+
+  renderPend();
+  renderDone(w, d);
+  const ta = $("comment");
+  if (!typing()) ta.value = saved[ckey(w, d)] || "";
+  ta.setAttribute("aria-label", `Comentario de ${day.name}, semana ${w + 1}`);
+}
+
+
+// Marcador de día completo
+function renderDone(w, d) {
+  const box = $("doneBox"); box.innerHTML = "";
+  const k = ORDER.findIndex(o => o.w === w && o.d === d);
+  if (isDone(w, d)) {
+    const b = el("div", "donebar");
+    b.append(el("b", null, "✓ DÍA COMPLETO"));
+    const dt = new Date(saved[hkey(w, d)]);
+    if (!isNaN(dt)) b.append(el("span", null, "Marcado el " + dt.toLocaleDateString("es-AR")));
+    const acts = el("div", "actions");
+    if (k < ORDER.length - 1) {
+      const nx = ORDER[k + 1];
+      const g = el("button", "btn", `Ir a ${DATA.days[nx.d].name} · Semana ${nx.w + 1} ›`);
+      g.addEventListener("click", () => { go(k + 1); window.scrollTo(0, 0); });
+      acts.append(g);
+    }
+    const u = el("button", "btn alt", "Desmarcar");
+    u.addEventListener("click", () => setDone(w, d, false));
+    acts.append(u); b.append(acts); box.append(b);
+  } else {
+    const r = el("div", "markrow");
+    const m = el("button", "btn", "✓ Marcar día completo");
+    const missing = liveIdx(d).filter(i => !rpeOf(w, d, i)).length;
+    m.addEventListener("click", () => {
+      if (!missing) { setDone(w, d, true); return; }
+      r.innerHTML = ""; r.classList.add("confirm");
+      r.append(el("p", "msg", `${missing === 1 ? "El ejercicio" : `Los ${missing} ejercicios`} sin RPE ${missing === 1 ? "va a quedar" : "van a quedar"} como "No llegué con el tiempo".`));
+      const acts = el("div", "actions");
+      const ok = el("button", "btn", "Confirmar"), no = el("button", "btn alt", "Cancelar");
+      ok.addEventListener("click", () => setDone(w, d, true));
+      no.addEventListener("click", () => render());
+      acts.append(ok, no); r.append(acts); ok.focus();
+    });
+    r.append(m); box.append(r);
+  }
+}
+// Al marcar completo, lo que no tiene RPE pasa a "No llegué con el tiempo". Al desmarcar se deshace solo eso.
+function setDone(w, d, on) {
+  const ak = hkey(w, d) + "-auto";
+  if (on) {
+    const auto = [];
+    liveIdx(d).forEach(i => { if (!rpeOf(w, d, i)) { saved[key(w, d, i)] = NOTIEMPO; auto.push(i); } });
+    saved[ak] = auto.join(",");
+    saved[hkey(w, d)] = new Date().toISOString();
+  } else {
+    String(saved[ak] || "").split(",").filter(Boolean).forEach(s => { const i = Number(s); if (saved[key(w, d, i)] === NOTIEMPO) saved[key(w, d, i)] = ""; });
+    saved[ak] = "";
+    saved[hkey(w, d)] = "";
+  }
+  render(); persist();
+}
+
+// RPE sin cargar: solo días ya hechos (anteriores al de hoy, y marcados o con algún RPE). Si no hay nada, la caja no se muestra.
+function renderPend() {
+  const box = $("pend"), wasOpen = box.dataset.init ? box.open : true;
+  box.innerHTML = ""; box.dataset.init = "1";
+  const upto = nextIndex();
+  const rows = [];
+  for (let k = 0; k < upto; k++) {
+    const {w, d} = ORDER[k], li = liveIdx(d);
+    const miss = li.filter(i => !rpeOf(w, d, i)).map(i => DATA.days[d].exercises[i].name);
+    const hecho = isDone(w, d) || miss.length < li.length;
+    if (hecho && miss.length) rows.push({k, label: `${DATA.days[d].name} · Semana ${w + 1}`, names: miss, total: li.length});
+  }
+  const n = rows.reduce((t, r) => t + r.names.length, 0);
+  box.hidden = !n;
+  if (!n) return;
+  const sum = el("summary");
+  sum.append(el("span", null, "RPE SIN CARGAR"), el("span", null, `${n} ejercicio${n > 1 ? "s" : ""}`));
+  box.append(sum);
+  const s = el("div", "sec");
+  rows.forEach(r => {
+    const it = el("div", "item miss");
+    const txt = el("div");
+    txt.append(el("b", null, `${r.label} — ${r.names.length} de ${r.total}`), el("span", null, r.names.join(" · ")));
+    const here = ORDER[pos].w === ORDER[r.k].w && ORDER[pos].d === ORDER[r.k].d;
+    const btn = el("button", "go", here ? "Estás acá" : "Ir");
+    btn.addEventListener("click", () => { go(r.k); $("list").scrollIntoView({behavior: "smooth", block: "start"}); });
+    it.append(txt, btn); s.append(it);
+  });
+  box.append(s);
+  box.open = wasOpen;
+}
+
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (DATA && !typing()) render(); });
+let lastCompact = window.matchMedia("(max-width: 700px)").matches;
+window.addEventListener("resize", () => { const c = window.matchMedia("(max-width: 700px)").matches; if (c !== lastCompact && DATA) { lastCompact = c; render(); } });
+// Celular (parado o apaisado): esconder el encabezado al bajar y mostrarlo al subir
+const landscapeMQ = window.matchMedia("(max-width: 700px), (orientation: landscape) and (max-height: 500px)");
+let lastY = window.scrollY;
+window.addEventListener("scroll", () => {
+  const top = document.querySelector(".top"), y = window.scrollY;
+  if (!landscapeMQ.matches || y < top.offsetHeight) top.classList.remove("hide");
+  else if (y > lastY + 6) top.classList.add("hide");
+  else if (y < lastY - 6) top.classList.remove("hide");
+  if (Math.abs(y - lastY) > 6) lastY = y;
+}, {passive: true});
+landscapeMQ.addEventListener("change", () => document.querySelector(".top").classList.remove("hide"));
+function go(p) { pos = Math.max(0, Math.min(ORDER.length - 1, p)); render(); }
+$("prev").onclick = () => go(pos - 1);
+$("next").onclick = () => go(pos + 1);
+$("today").onclick = () => go(nextIndex());
+$("comment").addEventListener("input", e => {
+  const {w, d} = ORDER[pos];
+  saved[ckey(w, d)] = e.target.value;
+  clearTimeout(typingTimer); typingTimer = setTimeout(persist, 800);
+});
+$("comment").addEventListener("blur", () => { clearTimeout(typingTimer); persist(); });
+// Repes que hiciste (texto libre, ej. "8-7-6"): se guarda mientras escribís, sin redibujar la tabla
+function repsInput(w, d, i, name) {
+  const k = rkey(w, d, i), v = saved[k] || "";
+  const x = el("input", "reps-in" + (v ? " has" : ""));
+  x.type = "text"; x.value = v; x.placeholder = "Repes que hice"; x.autocomplete = "off";
+  x.setAttribute("aria-label", "Repes que hiciste en " + name);
+  x.addEventListener("input", () => { saved[k] = x.value; x.classList.toggle("has", !!x.value); clearTimeout(typingTimer); typingTimer = setTimeout(persist, 800); });
+  x.addEventListener("blur", () => { clearTimeout(typingTimer); persist(); });
+  return x;
+}
+function setRpe(w, d, i, v) { saved[key(w, d, i)] = v; render(); persist(); }
+
+// ---------- edición directa en la tabla ----------
+// Nombre: vale para todas las semanas. Reps/Series/Carga/Tempo/Aclaraciones: solo la semana que estás viendo.
+// Si borrás el nombre, el ejercicio se quita (con opción de deshacer).
+let routineTimer = null;
+function saveRoutineSoon() { clearTimeout(routineTimer); routineTimer = setTimeout(() => saveRoutine(DATA), 600); }
+function editable(node, value, ph, onSave, saveIfEmpty) {
+  node.classList.add("ed");
+  node.contentEditable = "true";
+  node.spellcheck = false;
+  node.dataset.ph = ph;
+  node.setAttribute("role", "textbox");
+  node.setAttribute("aria-label", ph);
+  node.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); node.blur(); } if (e.key === "Escape") { node.textContent = value; node.blur(); } });
+  node.addEventListener("paste", e => { e.preventDefault(); const tx = (e.clipboardData || window.clipboardData).getData("text"); document.execCommand("insertText", false, tx.replace(/\s+/g, " ")); });
+  node.addEventListener("blur", () => {
+    const v = node.textContent.replace(/\s+/g, " ").trim();
+    if (v !== String(value || "") || (saveIfEmpty && !v)) { onSave(v); saveRoutineSoon(); }
+    setTimeout(() => { if (!typing()) render(); }, 0);
+  });
+}
+let toastTimer = null;
+function toast(msg, actLabel, act) {
+  const t = $("toast"); t.innerHTML = ""; t.append(el("span", null, msg));
+  if (act) { const b = el("button", null, actLabel); b.addEventListener("click", () => { act(); t.hidden = true; }); t.append(b); }
+  t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 7000);
+}
+function addExercise(d, group) {
+  const nw = weeksOf(d);
+  DATA.days[d].exercises.push({group, name: "", video: "", weeks: Array.from({length: nw}, () => ({reps: "", series: "", carga: "", tempo: "", rpe: "", notas: ""}))});
+  const i = DATA.days[d].exercises.length - 1;
+  render();
+  const n = document.querySelector(`[data-name-idx="${i}"]`);
+  if (n) { n.scrollIntoView({block: "center"}); n.focus(); }
+}
+
+// ---------- almacenamiento ----------
+function lsGet(k, fb) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; } catch (e) { return fb; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+async function persist() {
+  if (!DATA) return;
+  lsSet(storeKeyOf(DATA.sheet), saved);
+  if (!docRef) { $("save").textContent = "Guardado en este dispositivo"; return; }
+  if (writing) { pending = true; return; }
+  writing = true; $("save").textContent = "Guardando…";
+  try { await docRef.set({values: saved, updatedAt: new Date().toISOString()}); $("save").textContent = "Guardado"; }
+  catch (e) { $("save").textContent = "No se pudo guardar en tu cuenta; quedó en este dispositivo"; }
+  writing = false;
+  if (pending) { pending = false; persist(); }
+}
+
+function activate(routine, uploadedAt) {
+  DATA = routine;
+  const nw = Math.max(...DATA.days.map((_, d) => weeksOf(d)));
+  ORDER = [];
+  for (let w = 0; w < nw; w++) for (let d = 0; d < DATA.days.length; d++) if (w < weeksOf(d)) ORDER.push({w, d});
+  saved = lsGet(storeKeyOf(DATA.sheet), {});
+  pos = nextIndex();
+  $("setupWrap").hidden = true; $("routineView").hidden = false;
+  render();
+  subscribeValues();
+}
+
+function subscribeValues() {
+  if (unsub) { try { unsub(); } catch (e) {} unsub = null; }
+  docRef = null;
+  if (!db || !uid || !DATA) return;
+  docRef = db.collection("data/users/" + uid).doc(storeKeyOf(DATA.sheet));
+  const ref = docRef;
+  const timer = setTimeout(() => { $("save").textContent = "Sin conexión con tu cuenta"; }, 10000);
+  let loaded = false;
+  unsub = ref.onSnapshot(snap => {
+    clearTimeout(timer);
+    if (ref !== docRef || writing || pending) return;
+    const remote = snap && snap.exists ? (snap.data().values || {}) : null;
+    if (remote) {
+      const first = !loaded; loaded = true;
+      saved = Object.assign({}, saved, remote);
+      if (first) pos = nextIndex();
+      if (!typing()) render();
+    } else if (Object.keys(saved).length) { persist(); }
+  }, () => { clearTimeout(timer); $("save").textContent = "Sin conexión con tu cuenta"; });
+}
+
+async function saveRoutine(routine) {
+  const rec = {sheet: routine.sheet, json: JSON.stringify(routine), uploadedAt: new Date().toISOString()};
+  lsSet("rutina", rec);
+  if (db && uid) {
+    try { await db.collection("data/users/" + uid).doc("rutina").set(rec); }
+    catch (e) { $("note").textContent = "La rutina quedó guardada solo en este dispositivo."; }
+  }
+}
+
+// ---------- carga del Excel ----------
+function showSetup(canCancel) {
+  $("routineView").hidden = true; $("setupWrap").hidden = false;
+  $("setupTitle").textContent = canCancel ? "Cargar otra rutina" : "Cargá tu rutina";
+  $("cancelSetup").hidden = !canCancel;
+  $("pickBox").hidden = true; $("useSheet").hidden = true;
+  $("setupMsg").textContent = ""; $("setupMsg").className = "msg";
+  $("file").value = ""; $("fileName").textContent = "Ningún archivo elegido";
+  window.scrollTo(0, 0);
+}
+let xlsxPromise = null;
+function loadXLSX() {
+  if (window.XLSX) return Promise.resolve(window.XLSX);
+  if (!xlsxPromise) xlsxPromise = new Promise((ok, fail) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload = () => window.XLSX ? ok(window.XLSX) : fail(new Error("no XLSX"));
+    s.onerror = () => { xlsxPromise = null; fail(new Error("load")); };
+    document.head.append(s);
+  });
+  return xlsxPromise;
+}
+function setupMsg(t, err) { $("setupMsg").textContent = t; $("setupMsg").className = "msg" + (err ? " err" : ""); }
+
+$("file").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0];
+  $("pickBox").hidden = true; $("useSheet").hidden = true;
+  if (!f) return;
+  $("fileName").textContent = f.name;
+  setupMsg("Leyendo la planilla…");
+  try {
+    const XLSX = await loadXLSX();
+    const buf = await f.arrayBuffer();
+    const wb = XLSX.read(buf, {type: "array", cellNF: true});
+    parsed = parseRoutineWorkbook(XLSX, wb);
+  } catch (err) {
+    parsed = [];
+    setupMsg(err && err.message === "load" ? "No se pudo cargar el lector de Excel. Revisá la conexión y probá de nuevo." : "No pude abrir ese archivo. Tiene que ser el Excel (.xlsx) descargado de tu planilla.", true);
+    return;
+  }
+  if (!parsed.length) { setupMsg("No encontré ninguna rutina en ese archivo. Tiene que tener la columna EJERCICIOS y las columnas Reps, Series, RPE de cada semana.", true); return; }
+  const sel = $("sheetPick"); sel.innerHTML = "";
+  parsed.forEach((r, i) => {
+    const ex = r.days.reduce((n, d) => n + d.exercises.length, 0);
+    const o = el("option", null, `${r.sheet} · ${r.days.length} días, ${ex} ejercicios`); o.value = i; sel.append(o);
+  });
+  sel.value = String(parsed.length - 1);
+  $("pickBox").hidden = false; $("useSheet").hidden = false;
+  setupMsg(parsed.length > 1 ? "Elegí el mes. Por defecto queda la última hoja de la planilla." : "Rutina encontrada.");
+});
+$("useSheet").addEventListener("click", async () => {
+  const r = parsed[Number($("sheetPick").value)];
+  if (!r) return;
+  $("useSheet").disabled = true; setupMsg("Guardando…");
+  await saveRoutine(r);
+  $("useSheet").disabled = false;
+  activate(r);
+});
+$("changeBtn").addEventListener("click", () => showSetup(true));
+$("cancelSetup").addEventListener("click", () => { $("setupWrap").hidden = true; $("routineView").hidden = false; });
+
+// ---------- arranque ----------
+function routineFrom(rec) { try { return rec && rec.json ? JSON.parse(rec.json) : null; } catch (e) { return null; } }
+let localRec = lsGet("rutina", null);
+if (routineFrom(localRec)) activate(routineFrom(localRec)); else { $("note").textContent = "Cargando…"; }
+
+(async () => {
+  let gotCloud = false;
+  try {
+    const [dbNs, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    const id = user ? await user.id() : null;
+    const canWrite = user ? await user.can("data.write") : null;
+
+    if (dbNs && id && canWrite !== false) {
+      db = dbNs; uid = id; gotCloud = true;
+      const snap = await db.collection("data/users/" + uid).doc("rutina").get();
+      const rec = snap && snap.exists ? snap.data() : null;
+      if (rec && routineFrom(rec) && (!localRec || !DATA || (rec.uploadedAt || "") >= (localRec.uploadedAt || ""))) {
+        lsSet("rutina", rec); localRec = rec;
+        activate(routineFrom(rec));
+      } else if (DATA && localRec) {
+        await db.collection("data/users/" + uid).doc("rutina").set(localRec).catch(() => {});
+        subscribeValues();
+      }
+    }
+  } catch (e) { gotCloud = false; }
+  $("note").textContent = gotCloud ? "" : "Lo que cargás se guarda solo en este dispositivo.";
+  if (!DATA) showSetup(false);
+})();
+</script>
+
+</body></html>
