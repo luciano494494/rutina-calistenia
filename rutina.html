@@ -111,6 +111,11 @@ table.rutina{border-collapse:collapse;width:100%;min-width:740px;table-layout:fi
 .setup .file input{position:absolute;width:1px;height:1px;opacity:0}
 .setup .file:focus-within{outline:3px solid var(--orange);outline-offset:2px}
 .setup label.pick{font-weight:700;font-size:13px}
+.linkbox{display:grid;gap:8px;border:2px solid var(--char);background:var(--white);padding:12px}
+.linkbox input{height:44px;border:2px solid var(--char);background:var(--white);color:var(--ink);font:500 14px var(--font);padding:0 10px;width:100%;min-width:0}
+.linkbox input:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+.linkbox small{font-size:12px;color:var(--muted)}
+.or{margin:0;text-align:center;font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .setup select{width:100%;height:42px;border:2px solid var(--char);background:var(--white);font:600 15px var(--font);padding:0 8px}
 .btn{height:44px;border:2px solid var(--char);background:var(--char);color:var(--white);font:800 14px var(--font);cursor:pointer;padding:0 16px}
 .btn.alt{background:var(--cream);color:var(--char)}
@@ -190,6 +195,13 @@ main.wrap{padding-bottom:30px}
   <div class="setup">
     <h2 id="setupTitle">Cargá tu rutina</h2>
     <div class="inner">
+      <div class="linkbox">
+        <label class="pick" for="sheetUrl">Pegá el link de tu planilla de Google Sheets</label>
+        <input type="url" id="sheetUrl" placeholder="https://docs.google.com/spreadsheets/d/…" autocomplete="off" inputmode="url">
+        <div class="actions"><button class="btn" id="fromLink">Cargar desde el link</button></div>
+        <small>En Sheets: <b>Compartir → Copiar vínculo</b>, o copiá la dirección de la barra del navegador. Necesitás tener Google Sheets conectado en claude.ai, con una cuenta que pueda ver la planilla.</small>
+      </div>
+      <p class="or">o subí el Excel</p>
       <ol>
         <li>Abrí tu planilla de entrenamiento en Google Sheets.</li>
         <li>Tocá <b>Archivo → Descargar → Microsoft Excel (.xlsx)</b>. En el celular: los tres puntos ⋮ → <b>Compartir y exportar → Guardar como Excel</b>.</li>
@@ -222,7 +234,7 @@ main.wrap{padding-bottom:30px}
     </div>
     <div class="dayprog"><div class="bar"><i id="fill"></i></div><div class="pct" id="pct"></div></div>
   </div>
-  <div class="under"><span id="sheet"></span><span id="save" aria-live="polite"></span><button class="todaybtn" id="today" hidden>Ir a la de hoy</button></div>
+  <div class="under"><span id="sheet"></span><button class="todaybtn" id="changeTop">Cambiar rutina</button><span id="save" aria-live="polite"></span><button class="todaybtn" id="today" hidden>Ir a la de hoy</button></div>
 </div>
 <main class="wrap">
   <details class="pend" id="pend" open></details>
@@ -244,7 +256,7 @@ main.wrap{padding-bottom:30px}
       <div class="actions"><a class="btn fblink" href="https://github.com/luciano494494/rutina-calistenia/issues/new" target="_blank" rel="noopener">Enviar sugerencia ↗</a></div>
     </div>
   </section>
-  <div class="change"><button class="btn alt" id="changeBtn">Cargar otra rutina</button></div>
+  <div class="change actions"><button class="btn alt" id="refreshBtn" hidden>Actualizar desde la planilla</button><button class="btn alt" id="changeBtn">Cargar otra rutina</button></div>
 </main>
 </div>
 <p class="status wrap" id="note"></p>
@@ -295,7 +307,12 @@ function parseRoutineSheet(XLSX, ws, sheetName) {
       return kind === "rpe" ? v.replace(".", ",") : v;
     }
     if (x.t === "b" || x.t === "e") return "";
-    return String(x.v).trim();
+    const s = String(x.v).trim();
+    if (kind === "rpe") {
+      const m = s.match(/^(\d{1,2})[.\/,](\d{1,2})(?:[.\/]\d{2,4})?$/);
+      if (m) return `${Number(m[1])},${Number(m[2])}`;
+    }
+    return s;
   };
 
   const headers = [];
@@ -764,6 +781,7 @@ function activate(routine, uploadedAt) {
   ORDER = [];
   for (let w = 0; w < nw; w++) for (let d = 0; d < DATA.days.length; d++) if (w < weeksOf(d)) ORDER.push({w, d});
   saved = lsGet(storeKeyOf(DATA.sheet), {});
+  $("refreshBtn").hidden = !(DATA.source && DATA.source.type === "sheets");
   pos = nextIndex();
   $("setupWrap").hidden = true; $("routineView").hidden = false;
   render();
@@ -800,6 +818,106 @@ async function saveRoutine(routine) {
   }
 }
 
+// ---------- carga desde el link de Google Sheets ----------
+const GS = "Google Sheets";
+let gsTitles = [], gsId = null;
+function sheetIdFrom(url) { const m = String(url).match(/\/spreadsheets\/d\/([A-Za-z0-9_-]{20,})/) || String(url).trim().match(/^([A-Za-z0-9_-]{30,})$/); return m ? m[1] : null; }
+// Adaptador: la grilla que devuelve Google Sheets con la forma de hoja que espera el parser
+function colName(c) { let s = ""; c++; while (c > 0) { const r = (c - 1) % 26; s = String.fromCharCode(65 + r) + s; c = Math.floor((c - 1) / 26); } return s; }
+function colNum(s) { let n = 0; for (const ch of s) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; }
+const XSHIM = {
+  utils: {
+    encode_cell: ({r, c}) => colName(c) + (r + 1),
+    decode_range: ref => { const [a, b] = ref.split(":"); const p = x => { const m = x.match(/^([A-Z]+)(\d+)$/); return {c: colNum(m[1]), r: Number(m[2]) - 1}; }; return {s: p(a), e: p(b || a)}; }
+  },
+  SSF: {parse_date_code: () => null}
+};
+function gridToSheet(data) {
+  const ws = {}; let maxR = 0, maxC = 0;
+  (data || []).forEach(block => {
+    const r0 = block.startRow || 0, c0 = block.startColumn || 0;
+    (block.rowData || []).forEach((row, i) => (row.values || []).forEach((v, j) => {
+      if (!v || (v.formattedValue == null && !v.hyperlink)) return;
+      const r = r0 + i, c = c0 + j;
+      ws[XSHIM.utils.encode_cell({r, c})] = {t: "s", v: v.formattedValue == null ? "" : String(v.formattedValue), l: v.hyperlink ? {Target: v.hyperlink} : undefined};
+      maxR = Math.max(maxR, r); maxC = Math.max(maxC, c);
+    }));
+  });
+  ws["!ref"] = "A1:" + XSHIM.utils.encode_cell({r: maxR, c: maxC});
+  return ws;
+}
+function gsMessage(e) {
+  switch (e && e.code) {
+    case "server_not_connected": case "server_not_found": case "selection_required":
+      return "Google Sheets no está conectado en tu Claude. Conectalo en claude.ai → Configuración → Conectores, o subí el Excel.";
+    case "needs_reauth": return "Google Sheets se desconectó. Volvé a conectarlo en claude.ai → Configuración → Conectores.";
+    case "not_in_manifest": case "approval_required": case "consent_required":
+      return "Para leer la planilla tenés que permitirle a la app usar Google Sheets. Tocá el botón otra vez y aceptá el permiso.";
+    case "blocked_by_policy": return "Tu organización no permite usar Google Sheets desde esta app. Subí el Excel.";
+    case "tool_error": return "No pude abrir esa planilla. Revisá el link y que la cuenta de Google conectada pueda verla.";
+    case "not_granted": case "capability_disabled": case "capability_removed":
+      return "Desde acá no se puede leer Google Sheets. Subí el Excel.";
+    case "server_unavailable": return "Google Sheets no respondió. Probá de nuevo en un momento.";
+    default: return "No se pudo leer la planilla. Probá de nuevo o subí el Excel.";
+  }
+}
+async function gsCall(input) {
+  const mcp = await claude.use("mcp");
+  if (!mcp) throw {code: "not_granted"};
+  const r = await mcp.callTool(GS, "get_spreadsheet", input, {cache: false});
+  const p = r && r.payload;
+  return (p && p.content) || p || {};
+}
+async function gsLoadSheet(id, title) {
+  const res = await gsCall({spreadsheetId: id, includeGridData: true, ranges: [`'${title.replace(/'/g, "''")}'`],
+    fields: ["sheets.properties.title", "sheets.data.startRow", "sheets.data.startColumn", "sheets.data.rowData.values.formattedValue", "sheets.data.rowData.values.hyperlink"]});
+  const sh = (res.sheets || [])[0];
+  return sh ? parseRoutineSheet(XSHIM, gridToSheet(sh.data), title) : null;
+}
+async function gsPick(i) {
+  setupMsg("Leyendo la hoja…"); $("useSheet").hidden = true;
+  try {
+    const r = await gsLoadSheet(gsId, gsTitles[i]);
+    if (!r) { setupMsg(`La hoja "${gsTitles[i]}" no tiene una rutina con el formato de la app (columna EJERCICIOS y columnas Reps, Series, RPE). Elegí otra.`, true); return; }
+    r.source = {type: "sheets", id: gsId};
+    parsed = []; parsed[i] = r;
+    $("useSheet").hidden = false;
+    setupMsg(`${r.sheet}: ${r.days.length} días, ${r.days.reduce((n, d) => n + d.exercises.length, 0)} ejercicios.`);
+  } catch (e) { setupMsg(gsMessage(e), true); }
+}
+$("fromLink").addEventListener("click", async () => {
+  const id = sheetIdFrom($("sheetUrl").value);
+  $("pickBox").hidden = true; $("useSheet").hidden = true;
+  if (!id) { setupMsg("Ese link no parece de una planilla de Google Sheets. Tiene que empezar con https://docs.google.com/spreadsheets/d/", true); return; }
+  $("fromLink").disabled = true; setupMsg("Conectando con Google Sheets…");
+  try {
+    const res = await gsCall({spreadsheetId: id, fields: ["sheets.properties.title"]});
+    gsTitles = (res.sheets || []).map(s => s.properties && s.properties.title).filter(Boolean);
+    if (!gsTitles.length) throw {code: "tool_error"};
+    gsId = id;
+    const sel = $("sheetPick"); sel.innerHTML = "";
+    gsTitles.forEach((tt, i) => { const o = el("option", null, tt); o.value = i; sel.append(o); });
+    sel.value = String(gsTitles.length - 1);
+    sel.dataset.mode = "sheets";
+    $("pickBox").hidden = false;
+    await gsPick(gsTitles.length - 1);
+  } catch (e) { setupMsg(gsMessage(e), true); }
+  $("fromLink").disabled = false;
+});
+$("sheetPick").addEventListener("change", () => { if ($("sheetPick").dataset.mode === "sheets") gsPick(Number($("sheetPick").value)); });
+$("refreshBtn").addEventListener("click", async () => {
+  if (!DATA || !DATA.source || DATA.source.type !== "sheets") return;
+  const b = $("refreshBtn"); b.disabled = true; b.textContent = "Actualizando…";
+  try {
+    const r = await gsLoadSheet(DATA.source.id, DATA.sheet);
+    if (!r) throw {code: "tool_error"};
+    r.source = DATA.source;
+    await saveRoutine(r); activate(r);
+    toast("Rutina actualizada desde la planilla");
+  } catch (e) { toast(gsMessage(e)); }
+  b.disabled = false; b.textContent = "Actualizar desde la planilla";
+});
+
 // ---------- carga del Excel ----------
 function showSetup(canCancel) {
   $("routineView").hidden = true; $("setupWrap").hidden = false;
@@ -808,6 +926,7 @@ function showSetup(canCancel) {
   $("pickBox").hidden = true; $("useSheet").hidden = true;
   $("setupMsg").textContent = ""; $("setupMsg").className = "msg";
   $("file").value = ""; $("fileName").textContent = "Ningún archivo elegido";
+  delete $("sheetPick").dataset.mode;
   window.scrollTo(0, 0);
 }
 let xlsxPromise = null;
@@ -841,7 +960,7 @@ $("file").addEventListener("change", async e => {
     return;
   }
   if (!parsed.length) { setupMsg("No encontré ninguna rutina en ese archivo. Tiene que tener la columna EJERCICIOS y las columnas Reps, Series, RPE de cada semana.", true); return; }
-  const sel = $("sheetPick"); sel.innerHTML = "";
+  const sel = $("sheetPick"); sel.innerHTML = ""; sel.dataset.mode = "xlsx";
   parsed.forEach((r, i) => {
     const ex = r.days.reduce((n, d) => n + d.exercises.length, 0);
     const o = el("option", null, `${r.sheet} · ${r.days.length} días, ${ex} ejercicios`); o.value = i; sel.append(o);
@@ -859,6 +978,7 @@ $("useSheet").addEventListener("click", async () => {
   activate(r);
 });
 $("changeBtn").addEventListener("click", () => showSetup(true));
+$("changeTop").addEventListener("click", () => showSetup(true));
 $("cancelSetup").addEventListener("click", () => { $("setupWrap").hidden = true; $("routineView").hidden = false; });
 
 // ---------- arranque ----------
