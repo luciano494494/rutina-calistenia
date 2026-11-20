@@ -19,7 +19,16 @@ body{color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.35}
 
 
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sky)}
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--sky);padding-block:8px 10px;display:grid;justify-items:center}
+.top{position:relative;z-index:5;background:var(--sky);padding-block:8px 10px;display:grid;justify-items:center}
+.minitop{position:fixed;left:0;right:0;top:0;z-index:26;background:var(--char);color:var(--white);padding:calc(env(safe-area-inset-top,0px) + 4px) max(10px,env(safe-area-inset-right,0px)) 4px max(10px,env(safe-area-inset-left,0px));display:grid;grid-template-columns:36px minmax(0,1fr) auto 36px;align-items:center;gap:6px;transform:translateY(-110%);transition:transform .15s ease;box-shadow:0 3px 0 rgba(38,38,38,.25)}
+.minitop.show{transform:none}
+.minitop .mt-title{display:flex;gap:0;min-width:0;font-weight:800;font-size:15px;letter-spacing:.03em}
+.minitop .mt-day{background:var(--orange);padding:5px 10px;white-space:nowrap}
+.minitop .mt-week{background:var(--white);color:var(--char);padding:5px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minitop .mt-week.alt{background:#4a4744;color:var(--white)}
+.minitop .mt-pct{font-family:var(--num);font-size:20px;line-height:1;padding-top:2px;font-variant-numeric:tabular-nums}
+.minitop .navbtn{min-height:32px;font-size:20px}
+@media (prefers-reduced-motion:reduce){.minitop{transition:none}}
 .daybox{width:min(100%,560px);border:3px solid var(--char);box-shadow:0 4px 0 rgba(38,38,38,.25)}
 .dayhead{background:var(--orange);color:var(--white);display:grid;grid-template-columns:52px 1fr 52px;align-items:stretch;border-bottom:3px solid var(--char)}
 .dayhead h1{margin:0;display:grid;text-align:center;line-height:1}
@@ -146,7 +155,47 @@ table.rutina{border-collapse:collapse;width:100%;min-width:740px;table-layout:fi
 .inbox .item{grid-template-columns:minmax(0,1fr) auto}
 .inbox .fbtext{white-space:pre-wrap;font-size:13.5px;color:var(--ink)}
 .inbox .fbmeta{font-size:12px;color:var(--muted);margin-bottom:2px}
-main.wrap{padding-bottom:30px}
+main.wrap{padding-bottom:90px}
+.finmodal{position:fixed;inset:0;z-index:50;background:rgba(38,38,38,.55);display:grid;place-items:center;padding:16px max(16px,env(safe-area-inset-left,0px))}
+.fincard{width:min(100%,420px);max-height:calc(100dvh - 32px);overflow:auto;border:3px solid var(--char);background:var(--cream);box-shadow:0 6px 0 rgba(38,38,38,.35)}
+.finhead{background:var(--green);color:var(--ink);font-weight:800;font-size:20px;text-align:center;padding:14px 10px;border-bottom:3px solid var(--char)}
+.finbody{display:grid;gap:14px;padding:16px;text-align:center}
+.finbody p{margin:0;font-size:14.5px;font-weight:600}
+.fincol{flex-direction:column;align-items:stretch}
+.fina{display:grid;place-items:center;text-decoration:none;background:#25603a;border-color:var(--char)}
+.finmsg{background:var(--white);border:1.5px dashed var(--char);padding:10px;font-size:13.5px;text-align:left;white-space:pre-wrap;user-select:text}
+.pizarra{display:grid;gap:6px;text-align:left;background:#2f3b33;color:#f4f1e8;border:4px solid #8a6a43;padding:12px;font-size:13.5px}
+.pizarra b{font-size:15px}
+.pzrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.pzrow label{display:grid;gap:3px;font-size:11.5px;font-weight:700}
+.pzrow input,.pzrow select{height:38px;border:1.5px solid #f4f1e8;background:#3d4a41;color:#f4f1e8;font:600 14px var(--font);padding:0 6px;min-width:0;width:100%;color-scheme:dark}
+.pzrow input:focus-visible,.pzrow select:focus-visible{outline:3px solid var(--orange);outline-offset:1px}
+.finsub{margin:6px 0 0;font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.finlater{border-style:dashed}
+.where{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--char);color:var(--white);border-top:3px solid var(--char);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wbar{width:100%;display:grid;grid-template-columns:minmax(0,1fr) 72px auto auto;align-items:center;gap:10px;background:transparent;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:9px max(16px,env(safe-area-inset-right,0px)) 9px max(16px,env(safe-area-inset-left,0px))}
+.wbar:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
+.wtxt{display:grid;min-width:0;line-height:1.2}
+.wtxt b{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wtxt span{font-size:12px;color:#d9d4cc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbarbox{height:10px;background:#4a4744;overflow:hidden}
+.wbarbox i{display:block;height:100%;background:var(--green);width:0;transition:width .25s}
+.wpct{font-family:var(--num);font-size:24px;line-height:1;padding-top:3px;font-variant-numeric:tabular-nums}
+.wchev{font-size:14px;transition:transform .2s}
+.wbar[aria-expanded="true"] .wchev{transform:rotate(180deg)}
+.map{background:var(--cream);color:var(--ink);border-bottom:3px solid var(--char);padding:12px max(16px,env(safe-area-inset-left,0px));max-height:60vh;overflow:auto}
+.map h3{margin:0 0 8px;font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;text-align:center}
+.mgrid{display:grid;gap:4px;max-width:520px;margin:0 auto}
+.mgrid .mh{font-size:11.5px;font-weight:800;text-align:center;align-self:end}
+.mgrid .ml{font-size:12px;font-weight:800;align-self:center}
+.mc{height:44px;border:2px solid var(--char);background:var(--orange);color:var(--white);font:800 13px var(--font);cursor:pointer;display:grid;place-items:center;padding:0}
+.mc.part{background:#ebe834;color:var(--ink)}
+.mc.ok{background:var(--green);color:var(--ink)}
+.mc.cur{outline:3px solid var(--char);outline-offset:2px}
+.mc:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.mleg{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:10px;font-size:11.5px;font-weight:600}
+.mleg i{display:inline-block;width:12px;height:12px;border:1.5px solid var(--char);vertical-align:-2px;margin-right:4px}
+@media (prefers-reduced-motion:reduce){.wbarbox i,.wchev{transition:none}}
 .ed{cursor:text;border-radius:2px;outline:none}
 .ed:hover{background:rgba(240,138,75,.12)}
 .ed:focus{background:var(--white);box-shadow:0 0 0 2px var(--orange)}
@@ -159,7 +208,7 @@ main.wrap{padding-bottom:30px}
 .addbtn:hover{background:rgba(240,138,75,.15)}
 .addbtn:focus-visible{outline:3px solid var(--orange);outline-offset:-3px}
 .edhint{font-size:12px;font-weight:600;color:var(--char);text-align:center;margin:0 0 10px}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;gap:12px;align-items:center;background:var(--char);color:var(--white);border:2px solid var(--char);padding:10px 14px;font-weight:700;font-size:13.5px;max-width:calc(100% - 32px);box-shadow:0 4px 0 rgba(38,38,38,.35)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(74px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;gap:12px;align-items:center;background:var(--char);color:var(--white);border:2px solid var(--char);padding:10px 14px;font-weight:700;font-size:13.5px;max-width:calc(100% - 32px);box-shadow:0 4px 0 rgba(38,38,38,.35)}
 .toast button{border:2px solid var(--white);background:transparent;color:var(--white);font:800 12.5px var(--font);padding:4px 10px;cursor:pointer}
 .change{display:flex;justify-content:center;margin-top:16px}
 .markrow{display:flex;justify-content:center;margin-top:14px}
@@ -184,10 +233,7 @@ main.wrap{padding-bottom:30px}
   .under{margin-top:4px;font-size:11px;gap:8px}
   .todaybtn{padding:1px 8px;font-size:11px}
 }
-/* En el celular (parado o apaisado) el encabezado se esconde al bajar */
-@media (max-width:700px),(orientation:landscape) and (max-height:500px){
-  .top.hide{transform:translateY(calc(-100% - env(safe-area-inset-top,0px)))}
-}
+
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}.top{transition:none}}
 </style>
 
@@ -261,6 +307,39 @@ main.wrap{padding-bottom:30px}
 </div>
 <p class="status wrap" id="note"></p>
 <div class="toast" id="toast" hidden role="status"></div>
+<div class="finmodal" id="finModal" hidden role="dialog" aria-modal="true" aria-labelledby="finTitle">
+  <div class="fincard">
+    <div class="finhead" id="finTitle">¡Terminaste la rutina!</div>
+    <div class="finbody">
+      <p id="finText"></p>
+      <div class="pizarra">
+        <b>📝 Acordate de escribir en la pizarra</b>
+        <span>para cuándo querés la rutina nueva y cuántos días por semana vas a entrenar.</span>
+      </div>
+      <div class="actions fincol">
+        <button class="btn" id="finLater">Listo</button>
+        <p class="finsub">¿Ya te pasaron la rutina nueva?</p>
+        <button class="btn alt" id="finRefresh" hidden>Buscarla en la planilla</button>
+        <button class="btn alt" id="finNew">Cargar rutina nueva</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="minitop" id="minitop" aria-hidden="true">
+  <button class="navbtn" id="mPrev" tabindex="-1" aria-label="Sesión anterior">‹</button>
+  <div class="mt-title"><span class="mt-day" id="mDay"></span><span class="mt-week" id="mWeek"></span></div>
+  <span class="mt-pct" id="mPct"></span>
+  <button class="navbtn" id="mNext" tabindex="-1" aria-label="Sesión siguiente">›</button>
+</div>
+<div class="where" id="where" hidden>
+  <div class="map" id="map" hidden></div>
+  <button class="wbar" id="wbar" aria-expanded="false" aria-controls="map">
+    <span class="wtxt"><b id="wHere"></b><span id="wLeft"></span></span>
+    <span class="wbarbox"><i id="wFill"></i></span>
+    <span class="wpct" id="wPct"></span>
+    <span class="wchev" aria-hidden="true">▴</span>
+  </button>
+</div>
 
 <script>
 // Lee un Excel exportado de la planilla de entrenamiento y devuelve las rutinas por hoja.
@@ -425,11 +504,11 @@ function currentIndex() {
   return filled(w, d) < nLive(d) ? last : Math.min(last + 1, ORDER.length - 1);
 }
 function isDone(w, d) { return !!saved[hkey(w, d)]; }
-// Sesión de hoy: la siguiente a la última marcada como completa. Sin marcas, la primera con RPE sin cargar.
+// Sesión de hoy: la primera que no está completa (marcada como completa o con RPE en todos los ejercicios).
+// Si están todas completas, la última.
 function nextIndex() {
-  let last = -1;
-  ORDER.forEach(({w, d}, k) => { if (isDone(w, d)) last = k; });
-  return last === -1 ? currentIndex() : Math.min(last + 1, ORDER.length - 1);
+  const k = ORDER.findIndex(({w, d}) => !sessDone(w, d));
+  return k === -1 ? ORDER.length - 1 : k;
 }
 
 const _tw = document.createElement("canvas").getContext("2d");
@@ -441,13 +520,17 @@ function render() {
   $("title").textContent = dayLabel(day.name);
   $("weekline").textContent = "SEMANA " + (w + 1) + (isDone(w, d) ? " ✓" : "");
   $("weekline").className = "weekline" + (w % 2 ? " alt" : "");
-  $("prev").disabled = pos === 0;
-  $("next").disabled = pos === ORDER.length - 1;
+  $("prev").disabled = $("mPrev").disabled = pos === 0;
+  $("next").disabled = $("mNext").disabled = pos === ORDER.length - 1;
+  $("mDay").textContent = dayLabel(day.name);
+  $("mWeek").textContent = "SEMANA " + (w + 1) + (isDone(w, d) ? " ✓" : "");
+  $("mWeek").className = "mt-week" + (w % 2 ? " alt" : "");
   $("today").hidden = pos === nextIndex();
 
   // Avance de esta sesión (este día en esta semana): ejercicios con RPE / total
   const f = nLive(d) ? filled(w, d) / nLive(d) : 0;
   $("pct").textContent = (f * 100).toFixed(2).replace(".", ",") + "%";
+  $("mPct").textContent = Math.round(f * 100) + "%";
   $("fill").style.width = (100 * f) + "%";
   $("fill").style.background = f <= .25 ? "#eba834" : f <= .5 ? "#ebe834" : f <= .75 ? "#c3eb34" : f <= .99 ? "#78eb52" : "#44b857";
 
@@ -598,11 +681,80 @@ function render() {
 
   renderPend();
   renderDone(w, d);
+  renderWhere();
+  syncMini();
+  setTimeout(checkFinished, 400);
   const ta = $("comment");
   if (!typing()) ta.value = saved[ckey(w, d)] || "";
   ta.setAttribute("aria-label", `Comentario de ${day.name}, semana ${w + 1}`);
 }
 
+
+// ---------- dónde estás y cuánto falta ----------
+const sessDone = (w, d) => isDone(w, d) || (nLive(d) > 0 && filled(w, d) >= nLive(d));
+function renderWhere() {
+  const box = $("where"); box.hidden = false;
+  const {w, d} = ORDER[pos], tot = ORDER.length;
+  const done = ORDER.filter(o => sessDone(o.w, o.d)).length, left = tot - done;
+  $("wHere").textContent = `Estás en la sesión ${pos + 1} de ${tot}`;
+  $("wLeft").textContent = left ? `Te ${left === 1 ? "falta 1 sesión" : `faltan ${left} sesiones`}` : `¡Terminaste ${DATA.sheet}!`;
+  const f = tot ? done / tot : 0;
+  $("wFill").style.width = (f * 100) + "%";
+  $("wPct").textContent = Math.round(f * 100) + "%";
+  if (!$("map").hidden) drawMap();
+}
+function drawMap() {
+  const m = $("map"); m.innerHTML = "";
+  m.append(el("h3", null, `${DATA.sheet} · tocá una sesión para ir`));
+  const nd = DATA.days.length, nw = Math.max(...DATA.days.map((_, d) => weeksOf(d)));
+  const g = el("div", "mgrid"); g.style.gridTemplateColumns = `70px repeat(${nd}, minmax(0,1fr))`;
+  g.append(el("span"));
+  DATA.days.forEach(dy => g.append(el("span", "mh", dy.name)));
+  for (let w = 0; w < nw; w++) {
+    g.append(el("span", "ml", `Semana ${w + 1}`));
+    for (let d = 0; d < nd; d++) {
+      const k = ORDER.findIndex(o => o.w === w && o.d === d);
+      if (k < 0) { g.append(el("span")); continue; }
+      const n = nLive(d), f = filled(w, d), ok = sessDone(w, d);
+      const c = el("button", "mc" + (ok ? " ok" : f ? " part" : "") + (k === pos ? " cur" : ""), ok ? "✓" : f ? `${f}/${n}` : "");
+      c.setAttribute("aria-label", `${DATA.days[d].name}, semana ${w + 1}: ${ok ? "completa" : f ? `${f} de ${n} con RPE` : "sin hacer"}${k === pos ? " (estás acá)" : ""}`);
+      c.addEventListener("click", () => { toggleMap(false); go(k); window.scrollTo(0, 0); });
+      g.append(c);
+    }
+  }
+  m.append(g);
+  const lg = el("div", "mleg");
+  [["var(--green)", "Completa"], ["#ebe834", "Empezada"], ["var(--orange)", "Sin hacer"]].forEach(([c, tx]) => { const s = el("span"); const i = el("i"); i.style.background = c; s.append(i, tx); lg.append(s); });
+  m.append(lg);
+}
+function toggleMap(open) {
+  const m = $("map"), b = $("wbar");
+  const on = open == null ? m.hidden : open;
+  m.hidden = !on; b.setAttribute("aria-expanded", String(on));
+  if (on) drawMap();
+}
+$("wbar").addEventListener("click", () => toggleMap());
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("map").hidden) toggleMap(false); });
+
+// ---------- aviso de rutina terminada ----------
+// Aparece una sola vez por mes de rutina, cuando todas las sesiones quedan completas.
+const FINKEY = "fin-avisado";
+function allDone() { return ORDER.length > 0 && ORDER.every(o => sessDone(o.w, o.d)); }
+function checkFinished() {
+  if (!DATA || !allDone() || saved[FINKEY] || !$("finModal").hidden) return;
+  $("finText").textContent = `Completaste todas las sesiones de ${DATA.sheet}.`;
+  $("finRefresh").hidden = !(DATA.source && DATA.source.type === "sheets");
+  $("finModal").hidden = false;
+  $("finLater").focus();
+}
+function closeFin() { saved[FINKEY] = new Date().toISOString(); persist(); $("finModal").hidden = true; }
+$("finLater").addEventListener("click", closeFin);
+$("finNew").addEventListener("click", () => { closeFin(); showSetup(true); });
+$("finRefresh").addEventListener("click", () => {
+  closeFin(); showSetup(true);
+  if (DATA && DATA.source && DATA.source.id) { $("sheetUrl").value = "https://docs.google.com/spreadsheets/d/" + DATA.source.id; $("fromLink").click(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("finModal").hidden) closeFin(); });
 
 // Marcador de día completo
 function renderDone(w, d) {
@@ -691,17 +843,16 @@ function renderPend() {
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (DATA && !typing()) render(); });
 let lastCompact = window.matchMedia("(max-width: 700px)").matches;
 window.addEventListener("resize", () => { const c = window.matchMedia("(max-width: 700px)").matches; if (c !== lastCompact && DATA) { lastCompact = c; render(); } });
-// Celular (parado o apaisado): esconder el encabezado al bajar y mostrarlo al subir
-const landscapeMQ = window.matchMedia("(max-width: 700px), (orientation: landscape) and (max-height: 500px)");
-let lastY = window.scrollY;
-window.addEventListener("scroll", () => {
-  const top = document.querySelector(".top"), y = window.scrollY;
-  if (!landscapeMQ.matches || y < top.offsetHeight) top.classList.remove("hide");
-  else if (y > lastY + 6) top.classList.add("hide");
-  else if (y < lastY - 6) top.classList.remove("hide");
-  if (Math.abs(y - lastY) > 6) lastY = y;
-}, {passive: true});
-landscapeMQ.addEventListener("change", () => document.querySelector(".top").classList.remove("hide"));
+// Al bajar, el cartel grande se va con la página y aparece una barra fina fija con día, semana y porcentaje
+function syncMini() {
+  const top = document.querySelector(".top"), m = $("minitop");
+  const show = !!DATA && !$("routineView").hidden && top.getBoundingClientRect().bottom < 110;
+  m.classList.toggle("show", show); m.setAttribute("aria-hidden", String(!show));
+  m.querySelectorAll("button").forEach(b => { b.tabIndex = show ? 0 : -1; });
+}
+window.addEventListener("scroll", syncMini, {passive: true});
+$("mPrev").onclick = () => go(pos - 1);
+$("mNext").onclick = () => go(pos + 1);
 function go(p) { pos = Math.max(0, Math.min(ORDER.length - 1, p)); render(); }
 $("prev").onclick = () => go(pos - 1);
 $("next").onclick = () => go(pos + 1);
@@ -927,6 +1078,7 @@ function showSetup(canCancel) {
   $("setupMsg").textContent = ""; $("setupMsg").className = "msg";
   $("file").value = ""; $("fileName").textContent = "Ningún archivo elegido";
   delete $("sheetPick").dataset.mode;
+  $("where").hidden = true; toggleMap(false); $("minitop").classList.remove("show");
   window.scrollTo(0, 0);
 }
 let xlsxPromise = null;
@@ -979,7 +1131,7 @@ $("useSheet").addEventListener("click", async () => {
 });
 $("changeBtn").addEventListener("click", () => showSetup(true));
 $("changeTop").addEventListener("click", () => showSetup(true));
-$("cancelSetup").addEventListener("click", () => { $("setupWrap").hidden = true; $("routineView").hidden = false; });
+$("cancelSetup").addEventListener("click", () => { $("setupWrap").hidden = true; $("routineView").hidden = false; if (DATA) renderWhere(); });
 
 // ---------- arranque ----------
 function routineFrom(rec) { try { return rec && rec.json ? JSON.parse(rec.json) : null; } catch (e) { return null; } }
