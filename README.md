@@ -7,7 +7,10 @@ Funciona dentro de **Claude** (claude.ai): cada persona publica su propia copia 
 ## Qué hace
 
 - Cargás la rutina **pegando el link de tu planilla** o subiendo el Excel. Si vino del link, con **Actualizar desde la planilla** traés los cambios del entrenador.
-- Abre directo en la sesión que te toca (Día y Semana).
+- Abre directo en el **primer día que no completaste**.
+- Abajo, una barra fija te dice **en qué sesión estás y cuántas te faltan**; tocándola ves el mapa del mes y saltás a cualquier sesión.
+- Al bajar, el cartel grande se va y queda una barra fina arriba con el día, la semana y el porcentaje.
+- Cuando completás todo el mes, te avisa que terminaste y te recuerda **escribir en la pizarra** para cuándo querés la rutina nueva y cuántos días vas a entrenar.
 - Muestra la rutina por bloques (Super Serie A, B, C…), con Reps, Series, Carga, Tempo y Aclaraciones.
 - Cargás el **RPE** de cada ejercicio (6 a 10, o "No llegué") y las **repes que hiciste**.
 - **Marcar día completo**: lo que quedó sin RPE pasa a "No llegué con el tiempo".
